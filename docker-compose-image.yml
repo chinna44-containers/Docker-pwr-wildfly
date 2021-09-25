@@ -1,0 +1,31 @@
+version: '2'
+services:
+  wildfly:
+    build:
+      context: pwr-wildfly   
+    volumes:
+      - "./configuration:/usr/local/wildfly/standalone/configuration"
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    networks:
+      - wildfly
+    env_file:
+      - container.env
+  httpd:
+   image: automation-tools-us1p.dev.power.ge.com/pwr-it/httpd-oprnid-sslconf:latest
+   env_file:
+    - container.env
+    - base.env
+   volumes:
+    - "./ssl:/usr/local/apache2/conf/ssl"
+   ports:
+    - "80:80"
+    - "443:443"
+   networks:
+    - wildfly
+   links:
+    - wildfly:wildfly
+networks:
+  wildfly:
+    driver: bridge
